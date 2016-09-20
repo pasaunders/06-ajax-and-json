@@ -69,3 +69,4 @@ articleView.renderIndexPage = function() {
   articleView.handleMainNav();
   articleView.setTeasers();
 };
+Article.fetchAll();

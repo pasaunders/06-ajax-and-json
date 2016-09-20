@@ -46,6 +46,8 @@ Article.fetchAll = function() {
     /* When our data is already in localStorage:
     1. We can process and load it,
     2. Then we can render the index page.  */
+    Article.loadAll(JSON.parse(localStorage.hackerIpsum));
+    articleView.renderIndexPage();
   } else {
     /* Without our localStorage in memory, we need to:
     1. Retrieve our JSON file with $.getJSON
@@ -76,4 +78,4 @@ Article.fetchAll = function() {
 
 
 // TODO: invoke the retrieval process for our data!
-Article.fetchAll();
+// Article.fetchAll();
