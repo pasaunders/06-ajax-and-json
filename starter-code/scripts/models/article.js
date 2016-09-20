@@ -35,7 +35,7 @@ Article.loadAll = function(inputData) {
     return (new Date(b.publishedOn)) - (new Date(a.publishedOn));
   })
   .forEach(function(ele) {
-    articles.push(new Article(ele));
+    Article.allArticles.push(new Article(ele));
   });
 };
 
@@ -52,6 +52,11 @@ Article.fetchAll = function() {
       1.a Load our json data
       1.b Store that data in localStorage so that we can skip the server call next time,
       1.c And then render the index page.*/
+    $.getJSON('../data/hackerIpsum.json', function(data){
+      localStorage.hackerIpsum = JSON.stringify(data);
+      Article.loadAll(JSON.parse(localStorage.hackerIpsum));
+      articleView.renderIndexPage();
+    });
   }
 };
 
@@ -71,3 +76,4 @@ Article.fetchAll = function() {
 
 
 // TODO: invoke the retrieval process for our data!
+Article.fetchAll();
