@@ -6,7 +6,7 @@ function Article (opts) {
 
 /* DONE: Instead of a global `articles = []` array, let's track this list of all
  articles directly on the constructor function. Note: it is NOT on the prototype.
- In JavaScript, functions are themselves objects, which means we can add
+ In JavaScript, functions are tvar xhr = new XMLHttpRequest();hemselves objects, which means we can add
  properties/values to them at any time. In this case, we have a key:value pair
  to track, that relates to ALL of the Article objects, so it does not belong on
  the prototype, as that would only be relevant to a single instantiated Article.
@@ -41,41 +41,61 @@ Article.loadAll = function(inputData) {
 
 /* This function below will retrieve the data from either a local or remote
  source, process it, then hand off control to the View: */
-Article.fetchAll = function() {
-  if (localStorage.hackerIpsum) {
-    /* When our data is already in localStorage:
-    1. We can process and load it,
-    2. Then we can render the index page.  */
-    Article.loadAll(JSON.parse(localStorage.hackerIpsum));
-    articleView.renderIndexPage();
-  } else {
-    /* Without our localStorage in memory, we need to:
-    1. Retrieve our JSON file with $.getJSON
-      1.a Load our json data
-      1.b Store that data in localStorage so that we can skip the server call next time,
-      1.c And then render the index page.*/
-    $.getJSON('../data/hackerIpsum.json', function(data){
-      localStorage.hackerIpsum = JSON.stringify(data);
-      Article.loadAll(JSON.parse(localStorage.hackerIpsum));
-      articleView.renderIndexPage();
-    });
-  }
-};
-
-
+// Article.fetchAll = function() {
+//   if (localStorage.hackerIpsum) {
+//     /* When our data is already in localStorage:
+//     1. We can process and load it,
+//     2. Then we can render the index page.  */
+//
+//     Article.loadAll(JSON.parse(localStorage.hackerIpsum));
+//     articleView.renderIndexPage();
+//   } else {
+//     /* Without our localStorage in memory, we need to:
+//     1. Retrieve our JSON file with $.getJSON
+//       1.a Load our json data
+//       1.b Store that data in localStorage so that we can skip the server call next time,
+//       1.c And then render the index page.*/
+//     $.getJSON('../data/hackerIpsum.json', function(data){
+//       Article.loadAll(data);
+//       localStorage.hackerIpsum = JSON.stringify(data);
+//       articleView.renderIndexPage();
+//     });
+//   }
+// };
 
 /* Great work so far! STRETCH GOAL TIME!? Our main goal in this part of the
    lab will be saving the eTag located in Headers, to see if it's been updated:
-
-  Article.fetchAll = function() {
-    if (localStorage.hackerIpsum) {
-       Let's make a request to get the eTag (hint: what method on which
-        object could we use to find the eTag?
-
-    } else {}
-  }
 */
 
+Article.fetchAll = function() {
+  if (localStorage.hackerIpsum) {
+    $.ajax({
+      type: 'HEAD',
+      url: 'data/hackerIpsum.json',
+      success: function(data, status, xhr) {
+        var eTag = xhr.getResponseHeader('ETag');
+        if (eTag !== localStorage.eTag) {
+          Article.getFullContent();
+        }
+        else {
+          Article.loadAll(JSON.parse(localStorage.hackerIpsum));
+        }
+      }
+    });
+    Article.loadAll(data);
+  }
+  else {
+    Article.getFullContent();
+  }
+};
 
-// TODO: invoke the retrieval process for our data!
-// Article.fetchAll();
+Article.getFullContent = function() {
+  $.getJSON('data/hackerIpsum.json', function(data, status, xhr) {
+    localStorage.eTag = xhr.getResponseHeader('eTag');
+    localStorage.hackerIpsum = JSON.stringify(data);
+    Article.loadAll(data);
+    articleView.renderIndexPage();
+  });
+};
+
+Article.fetchAll();
